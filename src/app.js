@@ -14,6 +14,9 @@ app.use('/api/reports', reportRoutes);
 
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 app.use((error, _req, res, _next) => {
+  if (error && (error.status === 400 || error.type === 'entity.parse.failed' || (error instanceof SyntaxError && error.status === 400))) {
+    return res.status(400).json({ error: 'Malformed JSON payload' });
+  }
   console.error(error);
   return res.status(500).json({ error: 'Internal server error' });
 });
