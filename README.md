@@ -10,7 +10,7 @@ Copy `.env.example` to `.env` and set `JWT_SECRET` to a random value, then run:
 docker compose up --build
 ```
 
-The API listens on `http://localhost:3000`. PostgreSQL is initialized with two
+The API listens on `http://localhost:3002` (container port 3000) and PostgreSQL is exposed on port `5433` (container port 5432). PostgreSQL is initialized with two
 tenants, four users, and records assigned to multiple agents. The database
 volume is initialized only on its first creation; use
 `docker compose down -v` when a fresh seed is needed.
@@ -20,7 +20,7 @@ volume is initialized only on its first creation; use
 ### Login
 
 ```sh
-curl -X POST http://localhost:3000/api/auth/login \
+curl -X POST http://localhost:3002/api/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"adminA@example.com","password":"secret123"}'
 ```
@@ -48,6 +48,6 @@ For an already-running API and database, use:
 
 ```sh
 npm ci
-DATABASE_URL=postgres://app:app_password@localhost:5432/tenant_reports \
+DATABASE_URL=postgres://app:app_password@localhost:5433/tenant_reports \
 JWT_SECRET=replace-with-a-long-random-secret npm run test:isolation
 ```

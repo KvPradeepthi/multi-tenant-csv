@@ -10,7 +10,9 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 attempt=0
-until curl --fail --silent http://localhost:3000/health >/dev/null; do
+API_PORT="${API_PORT:-3002}"
+DB_PORT="${DB_PORT:-5433}"
+until curl --fail --silent "http://localhost:${API_PORT}/health" >/dev/null; do
   attempt=$((attempt + 1))
   if [ "$attempt" -ge 30 ]; then
     echo "API did not become healthy" >&2
@@ -19,6 +21,6 @@ until curl --fail --silent http://localhost:3000/health >/dev/null; do
   sleep 2
 done
 
-DATABASE_URL=postgres://app:app_password@localhost:5432/tenant_reports \
-JWT_SECRET=replace-with-a-long-random-secret \
+DATABASE_URL="${DATABASE_URL:-postgres://app:app_password@localhost:${DB_PORT}/tenant_reports}" \
+JWT_SECRET="${JWT_SECRET:-replace-with-a-long-random-secret}" \
 npm run test:isolation
