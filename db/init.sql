@@ -32,12 +32,12 @@ INSERT INTO users (tenant_id, email, password_hash, role)
 SELECT t.id, seed.email, seed.password_hash, seed.role
 FROM tenants t
 JOIN (VALUES
-  ('Tenant A', 'adminA@example.com', '$2a$10$KpYEY9vgtd/KkTC6VLwg.u3llRDASYgi34kxyABcTcHtoYXKBAVza', 'admin'),
-  ('Tenant A', 'agentA@example.com', '$2a$10$KpYEY9vgtd/KkTC6VLwg.u3llRDASYgi34kxyABcTcHtoYXKBAVza', 'agent'),
-  ('Tenant A', 'agentA2@example.com', '$2a$10$KpYEY9vgtd/KkTC6VLwg.u3llRDASYgi34kxyABcTcHtoYXKBAVza', 'agent'),
-  ('Tenant B', 'adminB@example.com', '$2a$10$KpYEY9vgtd/KkTC6VLwg.u3llRDASYgi34kxyABcTcHtoYXKBAVza', 'admin')
+  ('Tenant A', 'adminA@example.com', '$2a$10$zB39h7DoCJpP46dRa60LQuWgdBM3aLXz06Ybm9838v5XebVNN10De', 'admin'),
+  ('Tenant A', 'agentA@example.com', '$2a$10$zB39h7DoCJpP46dRa60LQuWgdBM3aLXz06Ybm9838v5XebVNN10De', 'agent'),
+  ('Tenant A', 'agentA2@example.com', '$2a$10$zB39h7DoCJpP46dRa60LQuWgdBM3aLXz06Ybm9838v5XebVNN10De', 'agent'),
+  ('Tenant B', 'adminB@example.com', '$2a$10$zB39h7DoCJpP46dRa60LQuWgdBM3aLXz06Ybm9838v5XebVNN10De', 'admin')
 ) AS seed(tenant_name, email, password_hash, role) ON seed.tenant_name = t.name
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = EXCLUDED.role;
 
 INSERT INTO sales_records (tenant_id, agent_id, amount, sale_date, client_name)
 SELECT t.id, u.id, seed.amount, seed.sale_date::date, seed.client_name
