@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: tenant_reports
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Seed database
+        env:
+          PGPASSWORD: app_password
+        run: |
+          psql -h localhost -U app -d tenant_reports -f db/init.sql
+
+      - name: Run test suite
+        env:
+          DATABASE_URL: postgres://app:app_password@localhost:5432/tenant_reports
+          JWT_SECRET: ci-test-secret-must-be-long-enough-32chars
+        run: npm test
